@@ -1,0 +1,23 @@
+services:
+  multiplayer-client:
+    image: ghcr.io/${GITHUB_USER:-dwidge}/multiplayer-client:latest
+    build:
+      context: ./client
+      args:
+        PUBLIC_URL:
+    ports:
+      - "4173:80"
+    env_file:
+      - .env
+      - .env.local
+
+  multiplayer-server:
+    image: ghcr.io/${GITHUB_USER:-dwidge}/multiplayer-server:latest
+    build: ./server
+    ports:
+      - "3050:3050"
+      - "3051:3051"
+      - "3052:3052"
+    env_file:
+      - .env
+      - .env.local
