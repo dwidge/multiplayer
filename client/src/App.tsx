@@ -1,10 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-
-const host = "" + (import.meta.env.VITE_MULTIPLAYER_HOST ?? "localhost");
-const port = +(import.meta.env.VITE_MULTIPLAYER_PORT ?? 3050);
-
-console.log("VITE_MULTIPLAYER_HOST", host);
-console.log("VITE_MULTIPLAYER_PORT", port);
+import { useJson } from "./useJson";
 
 interface Player {
   id: string;
@@ -15,6 +10,9 @@ interface Player {
 }
 
 export const App: React.FC = () => {
+  const config = useJson<{ host: string; port: number }>(
+    `config.json?t=${new Date().getTime()}`
+  );
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [player, setPlayer] = useState<Player>();
   const [players, setPlayers] = useState<{ [id: string]: Player | null }>({});
@@ -22,6 +20,8 @@ export const App: React.FC = () => {
   const timeoutRef = useRef<number>();
 
   useEffect(() => {
+    if (!config) return;
+
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.width = window.innerWidth;
@@ -30,7 +30,11 @@ export const App: React.FC = () => {
 
     timeoutRef.current = setTimeout(() => {
       timeoutRef.current = undefined;
-      socketRef.current = new WebSocket("ws://" + host + ":" + port);
+
+      const { host, port } = config;
+      console.log("config1", { host, port });
+
+      socketRef.current = new WebSocket(host);
       socketRef.current.onopen = () => {};
       socketRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
@@ -44,14 +48,14 @@ export const App: React.FC = () => {
       socketRef.current?.close();
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, []);
+  }, [config]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       const speed = 5;
       setPlayer((prev) => {
         if (!prev) return prev;
-        let newPlayer = { ...prev };
+        const newPlayer = { ...prev };
         switch (event.key) {
           case "w":
             newPlayer.y -= speed;
