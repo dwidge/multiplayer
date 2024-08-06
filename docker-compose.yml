@@ -1,18 +1,17 @@
 services:
   multiplayer-client:
-    image: ghcr.io/${GITHUB_USER:-dwidge}/multiplayer-client:latest
+    image: ghcr.io/${GITHUB_USER:-user}/multiplayer-client:latest
     build:
       context: ./client
     ports:
       - "4173:80"
     env_file:
       - .env
-      - .env.local
     volumes:
       - ./config.json:/home/static/config.json
 
   multiplayer-server:
-    image: ghcr.io/${GITHUB_USER:-dwidge}/multiplayer-server:latest
+    image: ghcr.io/${GITHUB_USER:-user}/multiplayer-server:latest
     build: ./server
     ports:
       - "3050:3050"
@@ -20,6 +19,5 @@ services:
       - "3054:3054"
     env_file:
       - .env
-      - .env.local
     volumes:
       - ./config.json:/app/assets/config.json

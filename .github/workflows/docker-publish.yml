@@ -1,3 +1,7 @@
+# Copyright DWJ 2024.
+# Distributed under the Boost Software License, Version 1.0.
+# https://www.boost.org/LICENSE_1_0.txt
+
 name: Build and Publish Docker Images
 
 on:
@@ -39,12 +43,9 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
-      - name: Build and push Vite app Docker image
+      - name: Build and push all images
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/multiplayer-client:latest client
-          docker push ghcr.io/${{ github.repository_owner }}/multiplayer-client:latest
-
-      - name: Build and push Node.js server Docker image
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/multiplayer-server:latest server
-          docker push ghcr.io/${{ github.repository_owner }}/multiplayer-server:latest
+          docker compose build
+          docker compose push
+        env:
+          GITHUB_USER: ${{ github.repository_owner }}
